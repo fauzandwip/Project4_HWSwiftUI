@@ -18,6 +18,7 @@ struct DatePickerView: View {
     func exampleDates() {
         let tomorrow = Date.now.addingTimeInterval(86400)
         let range = Date.now...tomorrow
+        print(range)
     }
 }
 
