@@ -9,13 +9,17 @@ import CoreML
 import SwiftUI
 
 struct ContentView: View {
+    init() {
+           //Use this if NavigationBarTitle is with Large Font
+           UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+
+           //Use this if NavigationBarTitle is with displayMode = .inline
+           UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor.black]
+       }
+    
     @State private var wakeUp = defaultWakeTime
     @State private var sleepAmount = 8.0
     @State private var coffeeAmount = 1
-    
-    @State private var alertTitle = ""
-    @State private var alertMessage = ""
-    @State private var showAlert = false
     
     static var defaultWakeTime: Date {
         var components = DateComponents()
@@ -26,57 +30,75 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            Form {
-                // wake up
-                Section {
-                    VStack(alignment: .leading, spacing: CGFloat(10)) {
-                        Text("When you want to wake up?")
-                            .font(.headline)
-                        
+            ZStack {
+                Form {
+                    // wake up
+                    Section {
                         DatePicker("Please enter a time", selection: $wakeUp, displayedComponents: .hourAndMinute)
                             .labelsHidden()
+                            .datePickerStyle(.wheel)
+                    } header: {
+                        Text("When you want to wake up?")
+                            .font(.headline)
+                            .foregroundColor(.white)
                     }
-                }
-                
-                // sleep
-                Section {
-                    VStack(alignment: .leading, spacing: 0) {
+                    
+                    // sleep
+                    Section {
+                        Stepper("\(sleepAmount.formatted()) hours", value: $sleepAmount, in: 4...12, step: 0.25)
+                    } header: {
                         Text("Desired amount of sleep")
                             .font(.headline)
-                        
-                        Stepper("\(sleepAmount.formatted()) hours", value: $sleepAmount, in: 4...12, step: 0.25)
+                            .foregroundColor(.white)
                     }
-                }
-                
-                // coffee
-                Section {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text("Daily coffe intake")
-                            .font(.headline)
-                        
-//                        Stepper(coffeeAmount == 1 ? "1 cup" : "\(coffeeAmount) cups", value: $coffeeAmount, in: 1...20)
-                        
+                    
+                    // coffee
+                    Section {
                         Picker(coffeeAmount == 1 ? "1 cup" : "\(coffeeAmount) cups", selection: $coffeeAmount) {
                             ForEach(0..<21) {
                                 Text("\($0)")
                             }
                         }
+                        
+                        
+                    } header: {
+                        Text("Daily coffe intake")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                    }
+                    
+                    // result
+                    Section {
+                        HStack {
+                            Spacer()
+                            
+                            Text("\(calculatedBedTime)")
+                                .font(.title.bold())
+                            
+                            Spacer()
+                        }
+                    } header: {
+                        HStack {
+                            Spacer()
+                            
+                            Text("Ideal Bedtime")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            Spacer()
+                        }
                     }
                 }
-            }
-            .navigationTitle("BetterRest")
-            .toolbar {
-                Button("Calculate", action: calculatedBedTime)
-            }
-            .alert(alertTitle, isPresented: $showAlert) {
-                Button("OK") {}
-            } message: {
-                Text(alertMessage)
+                .scrollContentBackground(.hidden)
+                .background(Color.gray)
+                .navigationTitle("BetterRest")
             }
         }
     }
     
-    func calculatedBedTime() {
+    var calculatedBedTime: String {
+        var result: String
+        
         do {
             let configuration = MLModelConfiguration()
             let model = try SleepCalculator(configuration: configuration)
@@ -89,15 +111,13 @@ struct ContentView: View {
             
             let sleepTime = wakeUp - prediction.actualSleep
             
-            alertTitle = "Your ideal bedtime is..."
-            alertMessage = sleepTime.formatted(date: .omitted, time: .shortened)
+            result = sleepTime.formatted(date: .omitted, time: .shortened)
             
         } catch {
-            alertTitle = "Error"
-            alertMessage = "Sorry, there was a problem calculating your bedtime."
+            result = "Sorry, there was a problem calculating your bedtime."
         }
         
-        showAlert = true
+        return result
     }
 }
 
