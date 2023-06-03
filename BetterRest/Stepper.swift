@@ -17,8 +17,8 @@ struct StepperView: View {
     }
 }
 
-struct Content_Preview: PreviewProvider {
-    static var previews: some View {
-        StepperView()
-    }
-}
+//struct StepperView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        StepperView()
+//    }
+//}
