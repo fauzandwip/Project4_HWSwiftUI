@@ -70,22 +70,16 @@ struct ContentView: View {
                     // result
                     Section {
                         HStack {
-                            Spacer()
-                            
                             Text("\(calculatedBedTime)")
                                 .font(.title.bold())
-                            
-                            Spacer()
+                                .hCenter()
                         }
                     } header: {
                         HStack {
-                            Spacer()
-                            
                             Text("Ideal Bedtime")
                                 .font(.headline)
                                 .foregroundColor(.white)
-                            
-                            Spacer()
+                            .hCenter()
                         }
                     }
                 }
@@ -121,10 +115,15 @@ struct ContentView: View {
     }
 }
 
-
-
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+    }
+}
+
+extension View {
+    func hCenter() -> some View {
+        self
+            .frame(maxWidth: .infinity, alignment: .center)
     }
 }
